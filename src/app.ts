@@ -1,18 +1,46 @@
 import * as dotenv from 'dotenv'
 import { Address, beginCell, internal, toNano } from 'ton-core'
 import { sleep, waitSeqno } from './delay'
-import { openWallet, readUsers } from './utils'
+import {
+	getJettonWalletAddress,
+	OpenedWallet,
+	openWallet,
+	readUsers,
+} from './utils'
 
 dotenv.config()
 
 async function init() {
-	const wallet = await openWallet(process.env.MNEMONIC!.split(' '), true)
+	let wallet: OpenedWallet
+	let jettonWalletAddress: Address
+	if (
+		process.env.NETWORK === 'TESTNET' &&
+		process.env.JETTON_MASTER_ADDRESS
+	) {
+		wallet = await openWallet(process.env.MNEMONIC!.split(' '), true)
+		jettonWalletAddress = await getJettonWalletAddress(
+			wallet.contract.address,
+			Address.parse(process.env.JETTON_MASTER_ADDRESS),
+			true
+		)
+	} else if (
+		process.env.NETWORK === 'MAINNET' &&
+		process.env.JETTON_MASTER_ADDRESS
+	) {
+		wallet = await openWallet(process.env.MNEMONIC!.split(' '), false)
+		jettonWalletAddress = await getJettonWalletAddress(
+			wallet.contract.address,
+			Address.parse(process.env.JETTON_MASTER_ADDRESS),
+			false
+		)
+	} else {
+		return
+	}
+
 	console.log(`Your wallet address: ${wallet.contract.address}`)
+	console.log(`Jetton wallet address ${jettonWalletAddress}`)
 
 	const users = await readUsers('data/users.csv')
-	const jettonWalletAddress = Address.parse(
-		'kQBtjCEF4oUER9SMj4tp1eFZW2EqZocseKwNKJbv03CalbYq'
-	)
 
 	const forwardPayload = beginCell()
 		.storeUint(0, 32)
