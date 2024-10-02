@@ -1,0 +1,20 @@
+{
+	"name": "jetton-airdrop",
+	"version": "1.0.0",
+	"main": "index.js",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/node": "^22.7.3",
+		"typescript": "^5.6.2"
+	},
+	"scripts": {
+		"start": "tsc --skipLibCheck && node dist/app.js"
+	},
+	"dependencies": {
+		"csvtojson": "^2.0.10",
+		"dotenv": "^16.4.5",
+		"ton": "^13.9.0",
+		"ton-core": "^0.53.0",
+		"ton-crypto": "^3.2.0"
+	}
+}
