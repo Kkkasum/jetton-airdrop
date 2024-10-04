@@ -41,6 +41,7 @@ async function init() {
 	console.log(`Jetton wallet address ${jettonWalletAddress}`)
 
 	const users = await readUsers('data/users.csv')
+	console.log(users)
 
 	const forwardPayload = beginCell()
 		.storeUint(0, 32)
