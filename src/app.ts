@@ -41,7 +41,6 @@ async function init() {
 	console.log(`Jetton wallet address ${jettonWalletAddress}`)
 
 	const users = await readUsers('data/users.csv')
-	console.log(users)
 
 	const forwardPayload = beginCell()
 		.storeUint(0, 32)
@@ -63,26 +62,31 @@ async function init() {
 			.storeRef(forwardPayload)
 			.endCell()
 
-		const seqno = await wallet.contract.getSeqno()
-		await wallet.contract.sendTransfer({
-			seqno: seqno,
-			secretKey: wallet.keyPair.secretKey,
-			messages: [
-				internal({
-					to: jettonWalletAddress,
-					value: toNano('0.1'),
-					bounce: true,
-					body: body,
-				}),
-			],
-		})
+		try {
+			const seqno = await wallet.contract.getSeqno()
+			await wallet.contract.sendTransfer({
+				seqno: seqno,
+				secretKey: wallet.keyPair.secretKey,
+				messages: [
+					internal({
+						to: jettonWalletAddress,
+						value: toNano('0.1'),
+						bounce: true,
+						body: body,
+					}),
+				],
+			})
 
-		console.log(
-			`Sent ${users[i].Amount} jettons to User #${users[i].ID} by Address <${users[i].Address}>`
-		)
+			console.log(
+				`Sent ${users[i].Amount} jettons to User #${users[i].ID} by Address <${users[i].Address}>`
+			)
 
-		await waitSeqno(seqno, wallet)
-		await sleep(25000)
+			await waitSeqno(seqno, wallet)
+		} catch (e) {
+			console.log(`Failed at User ${users[i].ID}. Error ${e}`)
+		}
+
+		await sleep(30000)
 	}
 }
 
